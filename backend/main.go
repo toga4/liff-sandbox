@@ -4,14 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/coreos/go-oidc"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -21,9 +20,21 @@ const (
 	port = 8080
 )
 
+var (
+	idTokenVerifier *oidc.IDTokenVerifier
+)
+
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
 	defer cancel()
+
+	provider, err := oidc.NewProvider(ctx, `https://access.line.me`)
+	if err != nil {
+		log.Fatalf("oidc.NewProvider: err: %v", err)
+	}
+	idTokenVerifier = provider.Verifier(&oidc.Config{
+		ClientID: os.Getenv("LIFF_CLIENT_ID"),
+	})
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
@@ -52,7 +63,7 @@ func newRouter() http.Handler {
 		AllowedOrigins: []string{"https://toga4-liff-sandbox.web.app"},
 	}))
 	r.Get("/_healthz", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("healthy"))
 	})
 	r.Post("/verify", func(w http.ResponseWriter, r *http.Request) {
@@ -61,33 +72,34 @@ func newRouter() http.Handler {
 		}
 		if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
 			log.Printf("json.Decode: err: %v", err)
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		data := url.Values{}
-		data.Set("id_token", reqBody.IDToken)
-		data.Set("client_id", os.Getenv("LIFF_CLIENT_ID"))
-
-		resp, err := http.DefaultClient.PostForm("https://api.line.me/oauth2/v2.1/verify", data)
+		idToken, err := idTokenVerifier.Verify(r.Context(), reqBody.IDToken)
 		if err != nil {
-			log.Printf("httpClient.PostForm: err: %v", err)
-			w.WriteHeader(500)
+			log.Printf("idTokenVerifier.Verify: err: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		defer func() {
-			_, _ = io.Copy(io.Discard, resp.Body)
-			_ = resp.Body.Close()
-		}()
 
-		b, err := io.ReadAll(resp.Body)
+		log.Printf("LINE UID: %v", idToken.Subject)
+
+		respBody := map[string]interface{}{}
+		if err := idToken.Claims(&respBody); err != nil {
+			log.Printf("idToken.Claims: err: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		b, err := json.Marshal(respBody)
 		if err != nil {
-			log.Printf("io.ReadAll(resp.Body): err: %v", err)
-			w.WriteHeader(500)
+			log.Printf("json.Marshal: err: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(resp.StatusCode)
+		w.WriteHeader(http.StatusOK)
 		w.Write(b)
 	})
 
