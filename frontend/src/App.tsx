@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import liff from "@line/liff";
 import "./App.css";
 
@@ -6,9 +6,10 @@ function App() {
   const [message, setMessage] = useState("");
   const [idToken, setIdToken] = useState<string | null>("");
   const [idTokenClaims, setIdTokenClaims] = useState("");
+  const [hasFriendship, setHasFriendShip] = useState(false);
   const [error, setError] = useState("");
 
-  useState(() => {
+  useEffect(() => {
     liff
       .init({
         liffId: import.meta.env.VITE_LIFF_ID,
@@ -18,12 +19,14 @@ function App() {
       .then(async () => {
         setMessage("LIFF init succeeded.");
         setIdToken(liff.getIDToken());
+        const friendship = await liff.getFriendship();
+        setHasFriendShip(friendship.friendFlag);
       })
       .catch((e: Error) => {
         setMessage("LIFF init failed.");
         setError(`${e}`);
       });
-  });
+  }, []);
 
   const onClickVerify = useCallback(async () => {
     try {
@@ -70,13 +73,23 @@ function App() {
       {idToken && (
         <>
           <p>
-            <textarea readOnly>{idToken}</textarea>
+            <textarea readOnly value={idToken} />
           </p>
           <p>
             <button onClick={onClickVerify}>verify</button>
           </p>
         </>
       )}
+      <p>LINE Bot が友だちに追加されていま{hasFriendship ? "す" : "せん"}</p>
+      <p>
+        <a
+          href="https://page.line.me/?accountId=879nkzzv"
+          target="_blank"
+          rel="noreferrer"
+        >
+          LINE Bot を友だちに追加
+        </a>
+      </p>
       {idTokenClaims && (
         <p>
           <pre>{idTokenClaims}</pre>
