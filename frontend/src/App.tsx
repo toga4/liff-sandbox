@@ -9,24 +9,23 @@ function App() {
   const [hasFriendship, setHasFriendShip] = useState(false);
   const [error, setError] = useState("");
 
+  let isLoggedIn = false;
+  try {
+    isLoggedIn = liff.isLoggedIn();
+  } catch (e) {
+    console.log(e);
+  }
+
   useEffect(() => {
-    liff
-      .init({
-        liffId: import.meta.env.VITE_LIFF_ID,
-        mock: import.meta.env.VITE_LIFF_MOCK === "true",
-        withLoginOnExternalBrowser: true,
-      })
-      .then(async () => {
-        setMessage("LIFF init succeeded.");
-        setIdToken(liff.getIDToken());
+    if (isLoggedIn) {
+      setIdToken(liff.getIDToken());
+      const f = async () => {
         const friendship = await liff.getFriendship();
         setHasFriendShip(friendship.friendFlag);
-      })
-      .catch((e: Error) => {
-        setMessage("LIFF init failed.");
-        setError(`${e}`);
-      });
-  }, []);
+      };
+      f();
+    }
+  }, [isLoggedIn]);
 
   const onClickVerify = useCallback(async () => {
     try {

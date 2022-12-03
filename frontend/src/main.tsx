@@ -6,9 +6,24 @@ import App from "./App";
 
 liff.use(new LiffMockPlugin());
 
-const container = document.getElementById("root")!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
-createRoot(container).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const main = async () => {
+  try {
+    await liff.init({
+      liffId: import.meta.env.VITE_LIFF_ID,
+      mock: import.meta.env.VITE_LIFF_MOCK === "true",
+    });
+  } catch (e) {
+    alert(`LIFF error: ${e}`);
+    return;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const container = document.getElementById("root")!;
+  createRoot(container).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+};
+
+main();
