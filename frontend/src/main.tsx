@@ -17,8 +17,10 @@ const main = async () => {
     return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const container = document.getElementById("root")!;
+  const container = document.getElementById("root");
+  if (!container) {
+    throw new Error("root element not found");
+  }
   createRoot(container).render(
     <React.StrictMode>
       <App />
