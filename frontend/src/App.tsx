@@ -96,7 +96,7 @@ function App() {
       <p>LINE Bot が友だちに追加されていま{hasFriendship ? "す" : "せん"}</p>
       <p>
         <a
-          href="https://page.line.me/?accountId=879nkzzv"
+          href="https://line.me/R/ti/p/@879nkzzv"
           target="_blank"
           rel="noreferrer"
         >
