@@ -55,6 +55,20 @@ function App() {
     <div className="App">
       <h1>toga4-liff-sandbox</h1>
       {message && <p>{message}</p>}
+      <p>
+        {isLoggedIn ? (
+          <button
+            onClick={() => {
+              liff.logout();
+              setTimeout(() => location.reload(), 200);
+            }}
+          >
+            logout
+          </button>
+        ) : (
+          <button onClick={() => liff.login()}>login</button>
+        )}
+      </p>
       {error && (
         <p>
           <code>{error}</code>
