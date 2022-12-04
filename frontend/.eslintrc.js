@@ -20,7 +20,9 @@ module.exports = {
     project: "./tsconfig.json",
   },
   plugins: ["react", "react-hooks", "@typescript-eslint"],
-  rules: {},
+  rules: {
+    "react/no-unknown-property": ["error", { ignore: ["css"] }],
+  },
   settings: {
     react: {
       version: "detect",
