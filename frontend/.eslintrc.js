@@ -9,6 +9,8 @@ module.exports = {
     "plugin:react-hooks/recommended",
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript",
     "prettier",
   ],
   parser: "@typescript-eslint/parser",
@@ -22,6 +24,7 @@ module.exports = {
   plugins: ["react", "react-hooks", "@typescript-eslint"],
   rules: {
     "react/no-unknown-property": ["error", { ignore: ["css"] }],
+    "import/order": ["error", { alphabetize: { order: "asc" } }],
   },
   settings: {
     react: {

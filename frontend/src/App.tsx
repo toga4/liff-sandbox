@@ -1,7 +1,7 @@
-import { Routes, Route } from "react-router-dom";
+import { css } from "@emotion/react";
+import { Route, Routes } from "react-router-dom";
 import { Home } from "./pages/Home";
 import { Index } from "./pages/Index";
-import { css } from "@emotion/react";
 
 export const App = () => {
   const style = css({
