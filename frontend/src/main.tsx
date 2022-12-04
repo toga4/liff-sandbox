@@ -2,16 +2,14 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import liff from "@line/liff";
-import { LiffMockPlugin } from "@line/liff-mock";
 import { App } from "./App";
-
-liff.use(new LiffMockPlugin());
+import { isMocked } from "./mock";
 
 const main = async () => {
   try {
     await liff.init({
       liffId: import.meta.env.VITE_LIFF_ID,
-      mock: import.meta.env.VITE_LIFF_MOCK === "true",
+      mock: isMocked,
     });
   } catch (e) {
     alert(`LIFF error: ${e}`);
