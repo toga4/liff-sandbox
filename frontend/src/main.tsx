@@ -1,8 +1,9 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import liff from "@line/liff";
 import { LiffMockPlugin } from "@line/liff-mock";
-import App from "./App";
+import { App } from "./App";
 
 liff.use(new LiffMockPlugin());
 
@@ -23,7 +24,9 @@ const main = async () => {
   }
   createRoot(container).render(
     <React.StrictMode>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </React.StrictMode>
   );
 };
