@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import liff from "@line/liff";
+import { css } from "@emotion/react";
 
 export const Home = () => {
   const [message, setMessage] = useState("");
@@ -99,9 +100,17 @@ export const Home = () => {
       </p>
       {idTokenClaims && (
         <p>
-          <pre>{idTokenClaims}</pre>
+          <StyledPre>{idTokenClaims}</StyledPre>
         </p>
       )}
     </>
   );
+};
+
+const StyledPre = ({ children }: { children: ReactNode }) => {
+  const style = css({
+    fontFamily: "monospace",
+    textAlign: "left",
+  });
+  return <pre css={style}>{children}</pre>;
 };
